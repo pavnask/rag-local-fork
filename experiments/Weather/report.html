@@ -1,0 +1,122 @@
+
+    <!DOCTYPE html>
+    <html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>AI Weather Report</title>
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+        <style>
+            body { padding: 20px; }
+            .good { color: green; font-weight: bold; }
+            .bad { color: red; font-weight: bold; }
+            .neutral { color: gray; font-weight: bold; }
+            table { width: 100%; border-collapse: collapse; }
+            th, td { padding: 10px; border: 1px solid #ddd; }
+            th { background-color: #f4f4f4; }
+            img { max-width: 100%; }
+        </style>
+    </head>
+    <body>
+        <h1 class="text-center">🌤 AI Weather Analysis Report</h1>
+        <h2 class="text-center">📊 Weather Trends</h2>
+        <img src="weather_trends.png" alt="Weather Trends" class="img-fluid">
+        <br><br>
+        <h2 class="text-center">📍 Detailed Weather Data</h2>
+        <table class="table table-bordered">
+            <thead>
+                <tr>
+                    <th>📍 Location</th>
+                    <th>🌦 Weather</th>
+                    <th>📝 Observation</th>
+                    <th>📢 AI Suggestion</th>
+                    <th>🏷️ Classification</th>
+                </tr>
+            </thead>
+            <tbody>
+    
+        <tr>
+            <td>Seattle</td>
+            <td>Gray, Drizzle, Calm</td>
+            <td>It is raining in Seattle, but I see the sun. I have an umbrella.</td>
+            <td>✅ No additional recommendations.</td>
+            <td class="good">Good</td>
+        </tr>
+        
+        <tr>
+            <td>Denver</td>
+            <td>Snowing, Snow, Cold Wind</td>
+            <td>It is snowing in Denver, and I feel warm wearing a coat and gloves.</td>
+            <td>Consider using umbrella in Denver, based on past observations in Seattle.</td>
+            <td class="good">Good</td>
+        </tr>
+        
+        <tr>
+            <td>Miami</td>
+            <td>Sunny, No Rain, Light Wind</td>
+            <td>There are puddles outside in Miami, but no rain. I forgot my boots.</td>
+            <td>Consider using umbrella in Miami, based on past observations in Seattle. Consider using gloves, coat in Miami, based on past observations in Denver.</td>
+            <td class="good">Good</td>
+        </tr>
+        
+        <tr>
+            <td>Los Angeles</td>
+            <td>Sunny, No Rain, Breezy</td>
+            <td>I'm sweating in Los Angeles, and the sky is stormy. No umbrella needed.</td>
+            <td>Consider using gloves, coat in Los Angeles, based on past observations in Denver. Consider using boots in Los Angeles, based on past observations in Miami.</td>
+            <td class="good">Good</td>
+        </tr>
+        
+        <tr>
+            <td>Phoenix</td>
+            <td>Blue, No Rain, Calm</td>
+            <td>The sun is shining bright in Phoenix, but I'm using an umbrella and sunglasses.</td>
+            <td>Consider using gloves, coat in Phoenix, based on past observations in Denver. Consider using boots in Phoenix, based on past observations in Miami.</td>
+            <td class="good">Good</td>
+        </tr>
+        
+        <tr>
+            <td>Chicago</td>
+            <td>Cloudy, Drizzle, Strong Wind</td>
+            <td>There are strong winds in Chicago, yet it's reported as calm. I have a scarf and gloves.</td>
+            <td>Consider using umbrella in Chicago, based on past observations in Seattle. Consider using coat in Chicago, based on past observations in Denver. Consider using boots in Chicago, based on past observations in Miami. Consider using umbrella in Chicago, based on past observations in Los Angeles. Consider using sunglasses, umbrella in Chicago, based on past observations in Phoenix.</td>
+            <td class="bad">Bad</td>
+        </tr>
+        
+        <tr>
+            <td>New York</td>
+            <td>Gray, Heavy Rain, Breezy</td>
+            <td>It is cloudy and looks like rain in New York. I have a hoodie.</td>
+            <td>Consider using umbrella in New York, based on past observations in Seattle. Consider using gloves, coat in New York, based on past observations in Denver. Consider using boots in New York, based on past observations in Miami. Consider using umbrella in New York, based on past observations in Los Angeles. Consider using sunglasses, umbrella in New York, based on past observations in Phoenix. Consider using gloves, scarf in New York, based on past observations in Chicago.</td>
+            <td class="bad">Bad</td>
+        </tr>
+        
+        <tr>
+            <td>Houston</td>
+            <td>Stormy, Heavy Rain, Strong Wind</td>
+            <td>There is a thunderstorm in Houston. I am wearing a raincoat and boots.</td>
+            <td>Consider using umbrella in Houston, based on past observations in Seattle. Consider using gloves, coat in Houston, based on past observations in Denver. Consider using umbrella in Houston, based on past observations in Los Angeles. Consider using sunglasses, umbrella in Houston, based on past observations in Phoenix. Consider using gloves, scarf in Houston, based on past observations in Chicago. Consider using hoodie in Houston, based on past observations in New York.</td>
+            <td class="bad">Bad</td>
+        </tr>
+        
+        <tr>
+            <td>Denver</td>
+            <td>Snowing, Snow, Cold Wind</td>
+            <td>The ground is frozen with snow in Denver. I should have worn gloves and a hat.</td>
+            <td>Consider using umbrella in Denver, based on past observations in Seattle. Consider using boots in Denver, based on past observations in Miami. Consider using umbrella in Denver, based on past observations in Los Angeles. Consider using sunglasses, umbrella in Denver, based on past observations in Phoenix. Consider using scarf in Denver, based on past observations in Chicago. Consider using hoodie in Denver, based on past observations in New York. Consider using raincoat, boots in Denver, based on past observations in Houston.</td>
+            <td class="good">Good</td>
+        </tr>
+        
+        <tr>
+            <td>Florida</td>
+            <td>Sunny, No Rain, Breezy</td>
+            <td>It's very humid today in Florida, but the wind is strong. I need a hat and sunglasses.</td>
+            <td>Consider using umbrella in Florida, based on past observations in Seattle. Consider using gloves, coat in Florida, based on past observations in Denver. Consider using boots in Florida, based on past observations in Miami. Consider using umbrella in Florida, based on past observations in Los Angeles. Consider using umbrella in Florida, based on past observations in Phoenix. Consider using gloves, scarf in Florida, based on past observations in Chicago. Consider using hoodie in Florida, based on past observations in New York. Consider using raincoat, boots in Florida, based on past observations in Houston.</td>
+            <td class="good">Good</td>
+        </tr>
+        
+            </tbody>
+        </table>
+    </body>
+    </html>
+    
