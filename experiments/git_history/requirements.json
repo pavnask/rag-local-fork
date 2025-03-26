@@ -1,0 +1,7 @@
+{
+  "required_fields": ["title", "description", "class"],
+  "field_constraints": {
+    "sla": { "min": 99 },
+    "rto": { "max": 20 }
+  }
+}

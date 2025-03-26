@@ -1,0 +1,9 @@
+[
+  {
+    "statement": "Business Critical systems must reside in Tier III datacenters.",
+    "sber": {
+      "applicability_level": ["Business Critical"],
+      "obj_und_ctrl": ["ecogroup.berezka.groups.systems_sbercloud"]
+    }
+  }
+]

@@ -1,0 +1,15 @@
+repo: /Users/pavelaskolskiy/ka-dzo-fork
+compare: [-1, 0]
+ai_summary: true
+language: English
+yaml: true
+use_schema: true
+schema_paths: _ecosystems_/kadzo/v2023/entities/application
+markdown: summary.md
+output: full_output.txt
+mode: requirements
+requirements_file: ./requirements.json
+standards_file: ./standards.json
+git_ignore:
+  - _ecosystems_/*
+  - "*.DS_Store"
