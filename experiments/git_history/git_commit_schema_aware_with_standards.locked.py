@@ -26,7 +26,6 @@ def load_standards(path):
 
 def check_against_standards(parsed_yaml, standards):
     results = []
-    detailed_records = []
 
     def get_systems_block(yaml_data):
         if not isinstance(yaml_data, dict):
@@ -121,43 +120,9 @@ def check_against_standards(parsed_yaml, standards):
                 print(Fore.GREEN + "✔ MATCH FOUND")
                 print(Fore.GREEN + f"[MATCH] {sys_id} matches: {item['statement']}")
                 results.append(f"🟢 **{sys_id}** matches standard:\n> _{item['statement']}_")
-                ai_opinion = check_with_ai(sys_data, item["statement"])
-                detailed_records.append({
-                    "system": sys_id,
-                    "rule_match": True,
-                    "ai_opinion": ai_opinion,
-                    "standard": item["statement"]
-                })
-                print(Fore.LIGHTBLUE_EX + f"[AI EVAL] {sys_id} → {ai_opinion}")
             else:
                 print(Fore.YELLOW + f"[DEBUG] No match for system: {sys_id} with statement: {item['statement']}")
-                detailed_records.append({
-                    "system": sys_id,
-                    "rule_match": False,
-                    "ai_opinion": None,
-                    "standard": item["statement"]
-                })
-    return results, detailed_records
-
-def check_with_ai(system_data, standard_statement, model="mistral"):
-    import json
-    prompt = f"""
-System data:
-{json.dumps(system_data, indent=2)}
-
-Standard:
-"{standard_statement}"
-
-Does this system meet the standard? Reply "Yes" or "No" and briefly explain why.
-"""
-    try:
-        response = ollama.chat(model=model, messages=[
-            {"role": "system", "content": "You are an expert in IT architecture and compliance."},
-            {"role": "user", "content": prompt}
-        ])
-        return response["message"]["content"].strip()
-    except Exception as e:
-        return f"[ERROR] AI evaluation failed: {e}"
+    return results
 
 def validate_yaml_against_requirements(yaml_lines, requirements):
     import yaml
@@ -484,12 +449,10 @@ def main():
             print(Fore.CYAN + "\nAI Summary of Changes:")
             print(Fore.CYAN + "=" * 50)
             summaries = summarize_diff_ollama(diff_groups, readme_content, args.language, schema_files=schema_files if args.use_schema else None)
-            ai_records = []
             if standards:
                 print(Fore.CYAN + "\nStandards Evaluation:")
                 for file_type, file_entries in diff_groups.items():
                     for file_path, content_lines in file_entries.items():
-                        hits = []
                         yaml_lines = content_lines
                         if all(not line.strip().startswith(("+", "-", "@@")) for line in yaml_lines):
                             cleaned_yaml = "\n".join(l.strip() for l in yaml_lines)
@@ -504,13 +467,7 @@ def main():
                             if not isinstance(parsed_yaml, dict):
                                 print(Fore.RED + f"[ERROR] Parsed YAML is not a dict for {file_path}. Skipping standards check.")
                                 continue
-
-                            result = check_against_standards(parsed_yaml, standards)
-                            if isinstance(result, tuple):
-                                hits, record_batch = result
-                                ai_records.extend(record_batch)
-                            else:
-                                hits = result
+                            hits = check_against_standards(parsed_yaml, standards)
                             print(Fore.WHITE + f"File: {file_path}")
                             if hits:
                                 for h in hits:
@@ -520,48 +477,44 @@ def main():
                         except Exception as e:
                             print(Fore.RED + f"[ERROR] Standards check failed for {file_path}: {e}")
 
-            if args_dict.get("markdown"):
-                md_lines = [
-                    "# AI Summary of Changes\n---\n"
-                ]
+        if args_dict.get("markdown"):
+            md_lines = ["# AI Summary of Changes\\n"]
+            total = 0
+            for file_type, file_summaries in summaries.items():
+                md_lines.append(f"## {file_type.upper()} Files\\n")
+                for file_path, summary in file_summaries.items():
+                    total += 1
+                    md_lines.append(f"### {file_path}\\n")
 
-                # Add AI-generated summaries by commit and file
-                if summaries:
-                    for commit_id, file_summaries in summaries.items():
-                        md_lines.append(f"## 📝 Изменения в коммите `{commit_id}`\n")
-                        for file_path, summary in file_summaries.items():
-                            md_lines.append(f"### {file_path}\n")
-                            md_lines.append(f"{summary.strip()}\n")
+                    if any(kw in summary.lower() for kw in ['removed', 'deleted', 'required', 'breaking']):
+                        md_lines.append("**🚨 Potential Breaking Change Detected**\\n")
 
-                # Add standards evaluation table
-                md_lines.append("## 🧠 Standards Evaluation: Rule vs AI\n")
-                md_lines.append("| Система | Соответствие правилам | Мнение ИИ | Итог |")
-                md_lines.append("|---------|------------------------|-----------|------|")
+                    if not summary:
+                        summary = "*No summary generated.*"
+                    md_lines.append(summary)
 
-                for record in ai_records:
-                    system = f"**{record['system']}**"
-                    rule = "✅" if record["rule_match"] else "❌"
-                    ai_raw = record.get("ai_opinion", "")
-                    ai_clean = ai_raw.strip().lower() if isinstance(ai_raw, str) else ""
-                    ai = "✅ Да" if ai_clean.startswith("yes") else "❌ Нет"
-                    if record["rule_match"] and not ai_clean.startswith("yes"):
-                        verdict = "⚠️ Конфликт"
-                    elif record["rule_match"]:
-                        verdict = "✅ Подтверждено"
-                    else:
-                        verdict = "❌"
-                    md_lines.append(f"| {system} | {rule} | {ai} | {verdict} |")
+                    if requirements:
+                        validation = validate_yaml_against_requirements(diff_groups[file_type][file_path], requirements)
+                        print(Fore.CYAN + f"[DEBUG] Requirements validation for {file_path}:")
+                        for v in validation:
+                            print(Fore.YELLOW + f"  - {v}")
+                        md_lines.append("#### Requirements Check\\n")
+                        for v in validation:
+                            md_lines.append(f"- {v}")
+                        md_lines.append("\\n")
 
-                md_lines.append(
-                    "\n> ⚠️ Конфликты указывают на системы, которые прошли проверку по правилам, но могут потребовать ручной проверки на основе интерпретации ИИ.\n"
-                    "> Это особенно важно для стандартов с нечеткими формулировками или зависящих от контекста, например, \"размещены в Tier III\".\n"
-                )
-                md_lines.append("\n---\n")
+                if total > 0:
+                    md_path = os.path.abspath(args_dict["markdown"])
+                    print(Fore.CYAN + f"[DEBUG] Saving markdown to: {md_path}")
+                    with open(md_path, "w", encoding="utf-8") as md_file:
+                        md_file.write("\\n".join(md_lines))
+                else:
+                    print(Fore.YELLOW + "[WARNING] No summaries found. Markdown not saved.")
 
-            md_path = os.path.abspath(args_dict["markdown"])
-            print(Fore.CYAN + f"[DEBUG] Saving markdown to: {md_path}")
-            with open(md_path, "w", encoding="utf-8") as md_file:
-                md_file.write("\n".join(md_lines))
+                for file_type, file_summaries in summaries.items():
+                    print(Fore.GREEN + f"\nSummary for {file_type} files:")
+                    for file_path, summary in file_summaries.items():
+                        print(Fore.WHITE + f"{file_path}:\n{summary}\n")
 
 
 if __name__ == "__main__":
